@@ -106,20 +106,34 @@ def crop_image_to_graph(pred, frame, img):
             resize_img = crop_img.resize((50, 50))
             # 转换为向量表示
             vec = np.array(resize_img).flatten()
-            vec = tuple(vec)
+            # vec = tuple(vec)
             arr.append(vec)
             # 坑：G的图，左下角为 (0, 0)，CV的图，左上角为 (0, 0)
-            G.add_node(vec, pos=(float((xmin + xmax) / 2), float((1000 - ymin + 1000 - ymax) / 2)),
+            G.add_node(len, value=vec, pos=(float((xmin + xmax) / 2), float((1000 - ymin + 1000 - ymax) / 2)),
                        label=coco_labels_name[int(item[1].cpu().numpy())])
             len = len + 1
-        for i in range(len):
-            for j in range(len):
-                if i == j:
-                    continue
-                a = np.array(arr[i])
-                b = np.array(arr[j])
-                distance = np.linalg.norm(a - b)
-                G.add_edge(arr[i], arr[j], weight=distance)
+        # 这段添加边的权重的代码有问题，但是问题是真的需要权重嘛
+        # 遍历所有节点
+        for u in G.nodes():
+            for v in G.nodes():
+                if u != v:
+                    # 获取节点 u 和节点 v 的值
+                    value_u = G.nodes[u]['value']
+                    value_v = G.nodes[v]['value']
+
+                    # 计算欧氏距离
+                    distance = np.linalg.norm(value_u - value_v)
+
+                    # 添加或更新节点 u 和节点 v 之间的边及其属性
+                    if G.has_edge(u, v):
+                        G[u][v]['weight'] = distance
+                    else:
+                        G.add_edge(u, v, weight=distance)
+
+        # # 输出更新后的权重
+        # for u, v, data in G.edges(data=True):
+        #     weight = data['weight']
+        #     print(f"Edge ({u}, {v}): {weight}")
         return G
 
 

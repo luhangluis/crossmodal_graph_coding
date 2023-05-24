@@ -5,9 +5,9 @@ from util import my_node2vec
 from util import image_to_graph, haptic_to_graph, sdne
 
 # 图像数据生成图结构
-G, data = image_to_graph.image2graph("./数据/2.png")
+# G, data = image_to_graph.image2graph("./数据/3.jpg")
 # 触觉数据生成图结构
-# G, data = haptic_to_graph.haptic2graph("./数据/G1EpoxyRasterPlate_Movement_X_test1.txt", 100, 300)
+G, data = haptic_to_graph.haptic2graph("./数据/G1EpoxyRasterPlate_Movement_X_test1.txt", 100, 300)
 
 embeddings = my_node2vec.node2vec_embeddings(G)
 

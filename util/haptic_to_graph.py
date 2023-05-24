@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from util import utils
 import networkx as nx
 
+
 #
 def haptic2graph(filename, l, h):
     """
@@ -29,18 +30,31 @@ def haptic2graph(filename, l, h):
     # peaks = smoothed_data[peaks_index]
 
     # # # 寻找波峰
-    peaks, _ = find_peaks(y)
+    peaks, _ = find_peaks(smoothed_data)
     # 邻接矩阵
     s = np.zeros((len(peaks), len(peaks)))
     # 创建空的图对象
     G = nx.Graph()
-    # 遍历邻接矩阵 - 二维数组
+    index = 0
     for i in range(len(peaks)):
-        for j in range(len(peaks)):
-            if i == j:
-                continue
-            s[i, j] = abs(peaks[i] - peaks[j])
-            G.add_edge(peaks[i], peaks[j], weight=s[i, j])
+        G.add_node(index, value=peaks[i])
+        index = index + 1
+    # 遍历邻接矩阵 - 二维数组
+    for u in G.nodes():
+        for v in G.nodes():
+            if u != v:
+                # 获取节点 u 和节点 v 的值
+                value_u = G.nodes[u]['value']
+                value_v = G.nodes[v]['value']
+
+                # 计算欧氏距离
+                distance = abs(value_u - value_v)
+
+                # 添加或更新节点 u 和节点 v 之间的边及其属性
+                if G.has_edge(u, v):
+                    G[u][v]['weight'] = distance
+                else:
+                    G.add_edge(u, v, weight=distance)
 
     return G, y
 
